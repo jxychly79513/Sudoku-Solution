@@ -13,7 +13,7 @@ int GetDigital(int bin);
 class CUnit
 {
 public:
-	int m_fill;			//表示可填的数
+	int m_fill;			//表示可填的数，是一个9位二进制数
 	int m_dig;			//已填的数，0表示什么都没填
 
 	CUnit();

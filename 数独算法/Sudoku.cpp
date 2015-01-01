@@ -14,28 +14,7 @@ CSudoku::CSudoku(int lattice[9][9])
 		for (int j = 0; j < 9; j++)
 		{
 			if (m_lattice[i][j] == 0)
-			{
-				for (int _i = 0; _i < 9; _i++)		//列
-				{
-					int t = ~GetBin(m_lattice[_i][j].m_dig);
-					m_lattice[i][j].m_fill = m_lattice[i][j].m_fill & ~GetBin(m_lattice[_i][j].m_dig);
-				}
-				for (int _j = 0; _j < 9; _j++)		//行
-				{
-					m_lattice[i][j].m_fill = m_lattice[i][j].m_fill & ~GetBin(m_lattice[i][_j].m_dig);
-				}
-				/*九宫格*/
-				int s_i, s_j;
-				getStartPos(i, j, s_i, s_j);
-
-				for (int _i = s_i; _i < s_i+3; _i++)
-				{
-					for (int _j = s_j; _j < s_j+3; _j++)
-					{
-						m_lattice[i][j].m_fill = m_lattice[i][j].m_fill & ~GetBin(m_lattice[_i][_j].m_dig);
-					}
-				}
-			}//end if
+			{updataFill(i, j);}
 		}
 	}
 }
@@ -127,15 +106,74 @@ int CSudoku::BitCount(int bit)
 	return count;
 }
 
-bool CSudoku::StartCount()
+void CSudoku::updataFill(int i, int j)
 {
-
-	for (int i = 0; i < 9; i++)
+	if (m_lattice[i][j] == 0)
 	{
-		for (int j = 0; j < 9; j++)
+		for (int _i = 0; _i < 9; _i++)		//列
 		{
+			m_lattice[i][j].m_fill = m_lattice[i][j].m_fill & ~GetBin(m_lattice[_i][j].m_dig);
+		}
+		for (int _j = 0; _j < 9; _j++)		//行
+		{
+			m_lattice[i][j].m_fill = m_lattice[i][j].m_fill & ~GetBin(m_lattice[i][_j].m_dig);
+		}
+		/*九宫格*/
+		int s_i, s_j;
+		getStartPos(i, j, s_i, s_j);
 
+		for (int _i = s_i; _i < s_i+3; _i++)
+		{
+			for (int _j = s_j; _j < s_j+3; _j++)
+			{
+				m_lattice[i][j].m_fill = m_lattice[i][j].m_fill & ~GetBin(m_lattice[_i][_j].m_dig);
+			}
 		}
 	}
+	else
+	{
+		m_lattice[i][j].m_fill = GetBin(NO_FILL);
+	}
+}
+
+int CSudoku::getDigit(int i, int j)
+{
+	return m_lattice[i][j].m_dig;
+}
+
+bool CSudoku::StartCount()
+{
+	int c_fblank = 0;			//为判断是否找到空白单元格
+	int c_fsingle = 0;			//为判断是否找到唯一数单元格
+
+	do
+	{
+		c_fblank = 0;
+		c_fsingle = 0;
+		for (int i = 0; i < 9; i++)
+		{
+			for (int j = 0; j < 9; j++)
+			{
+				if (m_lattice[i][j] == 0)			//找空白单元格
+				{
+					updataFill(i, j);
+					if ( BitCount(m_lattice[i][j].m_fill) == 1 )		//找唯一单元格
+					{
+						m_lattice[i][j] = GetDigital(m_lattice[i][j].m_fill);
+						c_fsingle++;
+					}
+					c_fblank++;
+				}
+			}//end for
+		}
+
+		if (c_fsingle == 0)
+		{
+			//cout<<"无唯一数单元格"<<endl;
+			break;
+		}
+
+	}while (c_fblank != 0);
+
 	return true;
 }

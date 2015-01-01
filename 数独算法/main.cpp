@@ -17,9 +17,24 @@ int main()
 		{0,0,0,1,5,0,0,7,5},
 		{0,6,0,0,0,0,4,9,0}
 	};
-
-	CSudoku sudo(test);
-	sudo.StartCount();
+	try
+	{
+		CSudoku sudo(test);
+		sudo.StartCount();
+		for (int i = 0; i < 9; i++)
+		{
+			for (int j = 0; j < 9; j++)
+			{
+				cout<<sudo.getDigit(i, j)<<" ";
+			}
+			cout<<endl;
+		}
+	}
+	catch(int error)
+	{
+		exit(error);
+	}
 
 	system("pause");
+	return 0;
 }
