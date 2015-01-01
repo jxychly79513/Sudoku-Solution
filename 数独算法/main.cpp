@@ -17,6 +17,7 @@ int main()
 		{0,0,0,1,5,0,0,7,5},
 		{0,6,0,0,0,0,4,9,0}
 	};
+
 	CSudoku sudo(test);
 	sudo.StartCount();
 

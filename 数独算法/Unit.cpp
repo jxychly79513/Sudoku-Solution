@@ -15,10 +15,10 @@ int GetBin(int digital)
 	case 8: return 128;	break;		//0b010000000
 	case 9: return 256;	break;		//0b100000000
 	case NO_FILL:
-		return 0;	break;		//0b000000000，什么都不可以填
+		return 0;		break;		//0b000000000，什么都不可以填
 	case ALL_FILL:
 		return 511;		break;		//0b111111111, 什么都可以填
-	default:return ERROR;	break;
+	default:throw DIGITAL_ERROR;	break;
 	}
 }
 
@@ -38,7 +38,8 @@ int GetDigital(int bin)
 	case 256:	return 9;	break;		//0b100000000
 	//case 0:		return NO_FILL;			//0b000000000，什么都不可以填
 		break;
-	default:	return ERROR;
+	default:
+		throw BIN_ERROR;
 		break;
 	}
 }

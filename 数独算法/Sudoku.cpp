@@ -26,8 +26,8 @@ CSudoku::CSudoku(int lattice[9][9])
 				}
 				/*¾Å¹¬¸ñ*/
 				int s_i, s_j;
-				if(!getStartPos(i, j, s_i, s_j))
-				{exit(2);}
+				getStartPos(i, j, s_i, s_j);
+
 				for (int _i = s_i; _i < s_i+3; _i++)
 				{
 					for (int _j = s_j; _j < s_j+3; _j++)
@@ -40,7 +40,7 @@ CSudoku::CSudoku(int lattice[9][9])
 	}
 }
 
-bool CSudoku::getStartPos(int i, int j, int &s_i, int &s_j)
+void CSudoku::getStartPos(int i, int j, int &s_i, int &s_j)
 {
 	bool isSuccess = true;
 
@@ -110,7 +110,11 @@ bool CSudoku::getStartPos(int i, int j, int &s_i, int &s_j)
 	{
 		isSuccess = false;
 	}
-	return isSuccess;
+
+	if(!isSuccess)
+	{
+		throw POS_ERROR;
+	}
 }
 
 int CSudoku::BitCount(int bit)
@@ -130,14 +134,8 @@ bool CSudoku::StartCount()
 	{
 		for (int j = 0; j < 9; j++)
 		{
-			if (BitCount(m_lattice[i][j].m_fill) == 1)
-			{
-				if (GetDigital(m_lattice[i][j].m_fill) == ERROR)
-				{exit(ERROR);}
-				m_lattice[i][j].m_dig = GetDigital(m_lattice[i][j].m_fill);
-			}
+
 		}
 	}
-
-
+	return true;
 }
