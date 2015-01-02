@@ -1,5 +1,10 @@
 #include "Sudoku.h"
 
+#define FLAG_SWITCH(flag) switch(flag){
+#define CASE_NORMAL case CSudoku::normal:{
+#define CASE_NOTONLY break;} case CSudoku::notonly:{
+#define END_SWITCH break; }default: break;}
+
 CSudoku::CSudoku(int lattice[9][9])
 {
 	for (int i = 0; i < 9; i++)
@@ -143,13 +148,20 @@ int CSudoku::getDigit(int i, int j)
 
 bool CSudoku::StartCount()
 {
+	Flag flag = normal;
+
 	int c_fblank = 0;			//为判断是否找到空白单元格
 	int c_fsingle = 0;			//为判断是否找到唯一数单元格
+	int c_fnosolu = 0;			//为判断是否找到无解单元格
 
 	do
 	{
 		c_fblank = 0;
 		c_fsingle = 0;
+		c_fnosolu = 0;
+
+		FLAG_SWITCH(flag)
+		CASE_NORMAL
 		for (int i = 0; i < 9; i++)
 		{
 			for (int j = 0; j < 9; j++)
@@ -162,15 +174,52 @@ bool CSudoku::StartCount()
 						m_lattice[i][j] = GetDigital(m_lattice[i][j].m_fill);
 						c_fsingle++;
 					}
+					else if ( BitCount(m_lattice[i][j].m_fill) == 0 )	//找无解单元格
+					{
+						c_fnosolu++;
+					}
 					c_fblank++;
 				}
 			}//end for
 		}
+		CASE_NOTONLY
+
+		int _numfill = 999;
+		int _i, _j;
+
+		for (int i = 0; i < 9; i++)
+		{
+			for (int j = 0; j < 9; j++)
+			{
+				if ( BitCount(m_lattice[i][j].m_fill) < _numfill )
+				{
+					_numfill = BitCount(m_lattice[i][j].m_fill);
+					_i = i; _j = j;
+				}
+			}
+		}
+		int _count = 1;
+		int _bin = m_lattice[_i][_j].m_fill;
+
+		while ((_bin & 1) != 1)
+		{
+			_bin = _bin >> 1;
+			_count++;
+		}
+
+		m_lattice[_i][_j] = _count;
+		flag = CSudoku::normal;
+
+		END_SWITCH
 
 		if (c_fsingle == 0)
 		{
 			//cout<<"无唯一数单元格"<<endl;
-			break;
+			flag = CSudoku::notonly;
+		}
+		if (c_fnosolu != 0)
+		{
+			//发现无解单元格
 		}
 
 	}while (c_fblank != 0);

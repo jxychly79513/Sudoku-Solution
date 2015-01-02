@@ -15,6 +15,13 @@ public:
 	int getDigit(int i, int j);
 
 	bool StartCount();
+
+private:
+	enum Flag
+	{
+		normal = 0,
+		notonly
+	};
 private:
 	CUnit m_lattice[9][9];			//表示数独格子的矩阵
 
