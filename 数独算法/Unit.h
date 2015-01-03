@@ -20,4 +20,5 @@ public:
 
 	CUnit &operator =(int dig);
 	bool operator ==(int dig);
+	bool operator !=(int dig);
 };

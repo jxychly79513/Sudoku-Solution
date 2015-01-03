@@ -3,6 +3,7 @@
 #define FLAG_SWITCH(flag) switch(flag){
 #define CASE_NORMAL case CSudoku::normal:{
 #define CASE_NOTONLY break;} case CSudoku::notonly:{
+#define CASE_NOSLN break;} case CSudoku::nosln:{
 #define END_SWITCH break; }default: break;}
 
 CSudoku::CSudoku(int lattice[9][9])
@@ -152,13 +153,13 @@ bool CSudoku::StartCount()
 
 	int c_fblank = 0;			//为判断是否找到空白单元格
 	int c_fsingle = 0;			//为判断是否找到唯一数单元格
-	int c_fnosolu = 0;			//为判断是否找到无解单元格
+	int c_fnosln = 0;			//为判断是否找到无解单元格
 
 	do
 	{
 		c_fblank = 0;
 		c_fsingle = 0;
-		c_fnosolu = 0;
+		c_fnosln = 0;
 
 		FLAG_SWITCH(flag)
 		CASE_NORMAL
@@ -173,25 +174,27 @@ bool CSudoku::StartCount()
 					{
 						m_lattice[i][j] = GetDigital(m_lattice[i][j].m_fill);
 						c_fsingle++;
+						c_fblank--;
 					}
 					else if ( BitCount(m_lattice[i][j].m_fill) == 0 )	//找无解单元格
 					{
-						c_fnosolu++;
+						c_fnosln++;
 					}
 					c_fblank++;
 				}
 			}//end for
 		}
+		if (c_fblank == 0) return true;		//循环出口
 		CASE_NOTONLY
 
 		int _numfill = 999;
 		int _i, _j;
 
-		for (int i = 0; i < 9; i++)
+		for (int i = 0; i < 9; i++)			//找到一个可填数最少的单元格
 		{
 			for (int j = 0; j < 9; j++)
 			{
-				if ( BitCount(m_lattice[i][j].m_fill) < _numfill )
+				if ( BitCount(m_lattice[i][j].m_fill) < _numfill && m_lattice[i][j] == 0 )
 				{
 					_numfill = BitCount(m_lattice[i][j].m_fill);
 					_i = i; _j = j;
@@ -205,24 +208,84 @@ bool CSudoku::StartCount()
 		{
 			_bin = _bin >> 1;
 			_count++;
+			if (_count > 9) _Debug_message(L"死循环",L"Sudoku.cpp",209);
 		}
-
+		/*缓存状态*/
+		CCache _cache(m_lattice, _i, _j, _count);
+		m_cache.push(_cache);
+		/*填数*/
 		m_lattice[_i][_j] = _count;
+
 		flag = CSudoku::normal;
+		continue;
+
+		CASE_NOSLN
+		do
+		{
+			if (m_cache.empty()) return false;
+
+			for (int i = 0; i < 9; i++)
+			{
+				for (int j = 0; j < 9; j++)
+				{
+					m_lattice[i][j] = m_cache.top().m_lattice[i][j];
+				}
+			}
+			int _count = 1;
+			int _bin = m_lattice[m_cache.top().m_i][m_cache.top().m_j].m_fill;
+
+			while ( ((_bin & 1) != 1) || (_count <= m_cache.top().m_digit) )
+			{
+				_bin = _bin >> 1;
+				_count++;
+				if (_count > 9) break; //_Debug_message(L"死循环",L"Sudoku.cpp",239);
+			}
+			if (_count <= 9)
+			{
+				/*填数并缓存*/
+				CCache _cache(m_lattice, m_cache.top().m_i, m_cache.top().m_j, _count);
+				m_lattice[m_cache.top().m_i][m_cache.top().m_j] = _count;
+
+				m_cache.pop();
+				m_cache.push(_cache);
+				break;			//循环出口
+			}
+			else
+			{
+				m_cache.pop();
+			}
+
+		}while(true);
+
+		flag = CSudoku::normal;
+		continue;
 
 		END_SWITCH
 
 		if (c_fsingle == 0)
 		{
-			//cout<<"无唯一数单元格"<<endl;
+			//发现无唯一数单元格
 			flag = CSudoku::notonly;
 		}
-		if (c_fnosolu != 0)
+		if (c_fnosln != 0)
 		{
 			//发现无解单元格
+			flag = CSudoku::nosln;
 		}
 
-	}while (c_fblank != 0);
+	}while (true);
 
 	return true;
+}
+
+CSudoku::CCache::CCache(CUnit lattice[9][9], int i, int j, int digit)
+	: m_i(i), m_j(j), m_digit(digit)
+{
+	for (int i = 0; i < 9; i++)
+	{
+		for (int j = 0; j < 9; j++)
+		{
+			m_lattice[i][j] = lattice[i][j];
+		}
+	}
 }

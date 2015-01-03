@@ -66,3 +66,8 @@ bool CUnit::operator==(int dig)
 {
 	return m_dig == dig;
 }
+
+bool CUnit::operator!=(int dig)
+{
+	return m_dig != dig;
+}
