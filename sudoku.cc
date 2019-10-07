@@ -9,7 +9,6 @@ private:
     int m_boxes[9];
     int m_lattice[9][9];
     int *m_origin;
-    bool m_done;
     std::vector<std::tuple<int, int, int> > m_stack; 
 
     int get_box(int i, int j) {
@@ -45,7 +44,7 @@ private:
 
 public: 
     Sudoku(int lattice[][9])
-        : m_rows{0}, m_cols{0}, m_boxes{0}, m_lattice{0}, m_done(false), m_origin(reinterpret_cast<int*>(lattice))
+        : m_rows{0}, m_cols{0}, m_boxes{0}, m_lattice{0}, m_origin(reinterpret_cast<int*>(lattice))
     {
         for (int i = 0; i < 9; ++i) {
             for (int j = 0; j < 9; ++j) {
